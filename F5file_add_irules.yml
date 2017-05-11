@@ -11,7 +11,7 @@
         user: "{{ username }}"
         password: "{{ password }}"
         name: "Sorry_iRule"
-        src: "irules/irule-sorry.tcl"
+        src: "irule-sorry.tcl"
         validate_certs: "no"
 
     - name: Add the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
@@ -21,6 +21,6 @@
         user: "{{ username }}"
         password: "{{ password }}"
         name: "Bodgeit_Rewrite"
-        src: "irules/bodgeit-rewrite.tcl"
+        src: "bodgeit-rewrite.tcl"
         validate_certs: "no"
 ...
