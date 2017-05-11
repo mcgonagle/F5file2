@@ -1,7 +1,7 @@
 node {
    stage('Preparation') { 
       // Get some code from a GitHub repository
-      git 'https://github.com/mcgonagle/F5file.git'
+      git 'https://github.com/mcgonagle/F5file_iRules.git'
    }
    stage('Testing') {
       //Run the tests
