@@ -5,8 +5,8 @@ node {
    }
    stage('Testing') {
       //Run the tests
-      sh "/usr/local/bin/ansible-lint F5file_build.yml"
-      sh "/usr/local/bin/ansible-review F5file_build.yml"
+      sh "/usr/local/bin/ansible-lint F5file_add_irules.yml"
+      sh "/usr/local/bin/ansible-review F5file_add_irules.yml"
    }
    stage('Build') {
        //Ansible Playbook
