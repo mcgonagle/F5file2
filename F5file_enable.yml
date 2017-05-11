@@ -1,0 +1,18 @@
+- name: Re-enable node
+  hosts: "{{ hosts }}"
+  connection: local
+
+  tasks:
+      - name: Enable node back in pool
+        bigip_pool_member:
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            state: "present"
+            session_state: "enabled"
+            host: "{{ item }}"
+            pool: "gw_pool"
+            port: "80"
+            validate_certs: "false"
+        with_items:
+            - generic-web01

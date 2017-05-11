@@ -1,0 +1,121 @@
+- name: Create a node, pool and VIP and take the node out of circulation
+  hosts: "{{ hosts }}"
+  connection: local
+
+  tasks:
+      - name: Get all of the facts from my BIG-IP
+        bigip_facts:
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            include: "system_info,software,self_ip"
+            validate_certs: "false"
+
+      - name: Mention the Self IP
+        debug:
+            msg: "I have self IP {{ self_ip['/Common/10.0.1.10'].address }}"
+
+      - name: Mention the software
+        debug:
+            msg: "I have software version {{ software[0].version }}"
+
+      - name: Add a new node generic webhost 01
+        bigip_node:
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            host: "10.0.2.167"
+            name: "generic-web01"
+            validate_certs: "false"
+            state: "present"
+            monitors:
+              - /Common/icmp
+
+      - name: Add a new node generic webhost 02
+        bigip_node:
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            host: "10.0.2.168"
+            name: "generic-web02"
+            validate_certs: "false"
+            state: "present"
+            monitors:
+              - /Common/icmp
+
+      - name: Create the gw_pool pool
+        bigip_pool:
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            name: "gw_pool"
+            validate_certs: "false"
+            monitors:
+              - /Common/http_head_f5
+
+      - name: Add members into gw_pool
+        bigip_pool_member:
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            state: "present"
+            host: "{{ item }}"
+            pool: "gw_pool"
+            port: "8080"
+            validate_certs: "false"
+        with_items:
+            - generic-web01
+            - generic-web02
+
+      - name: Add the iRule contained in the static file irule-sorry.tcl to the LTM module
+        bigip_irule:
+            module: "ltm"
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            name: "Sorry_iRule"
+            src: "irule-sorry.tcl"
+            validate_certs: "no"
+
+      - name: Add the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
+        bigip_irule:
+            module: "ltm"
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            name: "Bodgeit_Rewrite"
+            src: "bodgeit-rewrite.tcl"
+            validate_certs: "no"
+
+      - name: Create a VIP
+        bigip_virtual_server:
+            server: "{{ inventory_hostname }}"
+            description: "generic web VIP"
+            destination: "10.0.2.183"
+            user: "{{username}}"
+            password: "{{password}}"
+            name: "gw_vip"
+            pool: "gw_pool"
+            port: "80"
+            snat: "Automap"
+            all_profiles:
+                - "http"
+            all_rules:
+                - "Sorry_iRule"
+                - "Bodgeit_Rewrite"
+            validate_certs: "no"
+
+      - name: Drop members out of gw_pool
+        bigip_pool_member:
+            server: "{{ inventory_hostname }}"
+            user: "{{username}}"
+            password: "{{password}}"
+            state: "present"
+            session_state: "disabled"
+            host: "{{ item }}"
+            pool: "gw_pool"
+            port: "8080"
+            validate_certs: "false"
+        with_items:
+            - generic-web01
+            - generic-web02
