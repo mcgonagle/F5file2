@@ -1,0 +1,26 @@
+---
+- name: add irules 
+  hosts: "{{ hosts }}"
+  connection: local
+
+  tasks:
+      - name: Add the iRule contained in the static file irule-sorry.tcl to the LTM module
+        bigip_irule:
+            module: "ltm"
+            server: "{{ inventory_hostname }}"
+            user: "{{ username }}"
+            password: "{{ password }}"
+            name: "Sorry_iRule"
+            src: "irules/irule-sorry.tcl"
+            validate_certs: "no"
+
+      - name: Add the iRule contained in the static file bodgeit-rewrite.tcl to the LTM module
+        bigip_irule:
+            module: "ltm"
+            server: "{{ inventory_hostname }}"
+            user: "{{ username }}"
+            password: "{{ password }}"
+            name: "Bodgeit_Rewrite"
+            src: "irules/bodgeit-rewrite.tcl"
+            validate_certs: "no"
+...

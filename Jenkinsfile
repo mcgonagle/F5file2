@@ -13,7 +13,7 @@ node {
        ansiblePlaybook(
          colorized: true, 
          inventory: 'hosts.ini', 
-         playbook: 'F5file_build.yml', 
+         playbook: 'F5file_add_irules.yml', 
          sudoUser: null,
          extraVars: [
             username: 'admin',
@@ -24,7 +24,7 @@ node {
       slackSend( 
          channel: '#general', 
          color: 'good', 
-         message: 'F5file Build Ran Successfully', 
+         message: 'F5file iRules added Successfully', 
          teamDomain: 'uniopsteam', 
          token: 'zkMRYtEXCEG3Q2FlUsS2Hjjv'
          )
@@ -38,7 +38,7 @@ node {
        ansiblePlaybook(
          colorized: true, 
          inventory: 'hosts.ini', 
-         playbook: 'F5file_enable.yml', 
+         playbook: 'F5file_remove_irules.yml', 
          sudoUser: null,
          extraVars: [
             username: 'admin',
@@ -49,7 +49,7 @@ node {
       slackSend( 
          channel: '#general', 
          color: 'good', 
-         message: 'F5file Node Re-enabled', 
+         message: 'F5file iRules removed successfully', 
          teamDomain: 'uniopsteam', 
          token: 'zkMRYtEXCEG3Q2FlUsS2Hjjv'
          )
